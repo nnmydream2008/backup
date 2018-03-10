@@ -1,7 +1,38 @@
 #!/bin/bash
 username="admin"       
 password="123456"    
-address="192.168.1.163"       
+address="192.168.1.163"  
+#######################backup codes and mysql
+mkdir /data/ftp
+cd /data/ftp
+mysqldump -uroot -ppassw0rd asterisk > asterisk.`date +%Y%m%d`.sql
+mysqldump -uroot -ppassw0rd mysql > mysql.`date +%Y%m%d`.sql
+mysqldump -uroot -ppassw0rd mixcall > mixcall.`date +%Y%m%d`.sql
+mysqldump -uroot -ppassw0rd singhead > singhead.`date +%Y%m%d`.sql
+tar -czvf /data/ftp/mixcall.tar.gz /var/www/html/mixcall/*
+tar -czvf /data/ftp/custom.tar.gz /var/lib/asterisk/sounds/custom/*
+tar -czvf /data/ftp/agi-bin.tar.gz /data/singhead/agi-bin/*
+tar -czvf /data/ftp/admin.tar.gz /var/www/html/admin/*
+tar -czvf /data/ftp/interface.tar.gz /var/www/html/interface/*
+tar -czvf /data/ftp/backup.`date +%Y%m%d`.tar.gz ./*               
+rm -f *.sql
+rm -f mixcall.tar.gz
+rm -f custom.tar.gz 
+rm -f agi-bin.tar.gz
+rm -f admin.tar.gz
+rm -f interface.tar.gz
+ftp -n<<!                         
+open $address
+user $username $password
+binary
+hash
+prompt
+mput *
+delete backup.`date -d "7 day ago" +%Y%m%d`.tar.gz
+close
+bye
+!
+rm -f *
 #######################backup record
 cd /var/spool/asterisk/monitor/
 day=`date +%m%d`
